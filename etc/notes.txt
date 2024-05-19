@@ -1,0 +1,41 @@
+**********************************
+### Scratch Notes:
+
+heltec stuff
+https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series
+https://github.com/HelTecAutomation/Heltec_ESP32
+https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series/releases/download/3.0.0/package_heltec_esp32_index.json
+https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series/releases/download/0.0.7/package_heltec_esp32_index.json
+
+user made library
+https://github.com/ropg/Heltec_ESP32_LoRa_v3
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json
+
+
+ledc control | https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/ledc.html
+
+
+
+relevant arduino folder paths?
+~\Documents\Arduino\libraries\
+~\Documents\Arduino\libraries\Heltec_ESP32_Dev-Boards\src
+~\Documents\Arduino\hardware\
+~\Documents\Arduino\hardware\heltec\esp32\cores\esp32
+
+~\AppData\Local\Arduino15\packages\
+
+**********************************
+### What I'm doing:
+Trying official Heltec stuff
+
+Install heltec WiFi_Kit_series board stuff | https://github.com/Heltec-Aaron-Lee/WiFi_Kit_series
+rev 3.0.0 Alpha
+Create 'heltec' folder in ~\Documents\Arduino\hardware\heltec
+follow git instructions of cloning into esp32 folder
+
+Install Heltec_ESP32 Library | https://github.com/HelTecAutomation/Heltec_ESP32
+Search for "Heltec" in Library Manager, installing v2.0.1
+
+Works yay, now just listed as a single board [WiFi Lora 32(V3)] instead of the weird combo of that/wireless/stick/etc
+
+## To get VSCode working:

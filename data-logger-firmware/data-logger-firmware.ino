@@ -1,28 +1,31 @@
 #include "Arduino.h"
 #include "WiFi.h"
 #include "time.h"
-#include <DHT.h>
+#include <Adafruit_BME280.h>
 #include <HT_SSD1306Wire.h>
 
 #define LED_PIN 35
-#define DHT_PIN 1 // using as DHT22 pin
+
+#define BME_SCL 47
+#define BME_SDA 48
+#define SEALEVELPRESSURE_HPA (1013.25)
 
 #define WIFI_SSID "ZA"
 #define WIFI_PASSWORD "wlcs2001"
 
 const char* ntpServer = "pool.ntp.org";
 const long gmtOffset_sec = -8*3600;
-const int daylightOffset_sec = 0;
+const int daylightOffset_sec = 3600;
 struct tm timeinfo;
 
-
-DHT dht(DHT_PIN, DHT22);
-
-unsigned long lastMillis_dht;
+unsigned long lastMillis_bme;
 unsigned long lastMillis_display;
 unsigned long currentMillis;
 
 float currentTemperature = 0;
+
+TwoWire BME_Wire(1);
+Adafruit_BME280 bme; // I2C
 
 SSD1306Wire  screen(0x3c, 500000, SDA_OLED, SCL_OLED, GEOMETRY_128_64, RST_OLED);
 
@@ -65,25 +68,47 @@ void setup() {
     Serial.print("Connected to WiFi with IP: ");
     Serial.println(WiFi.localIP());
 
+    // without this line, the getLocalTime() function was taking longer than it should have
+    // TODO: check if getLocalTime needs internet or not after this initial config (ideally no internet needed just to track time)
+    configTime(gmtOffset_sec, daylightOffset_sec, ntpServer);
 
-    dht.begin();
+    BME_Wire.begin(BME_SDA, BME_SCL, 100000);
+    bool bmestatus = bme.begin(0x76, &BME_Wire);
+    // TODO: bme.init()? bme.setSampling?()
+    // .getTemperatureCompensation(), .setTemperatureCompensation()
+    if (!bmestatus) {
+        Serial.println("Could not find a valid BME280 sensor, check wiring, address, sensor ID!");
+        Serial.print("SensorID was: 0x"); Serial.println(bme.sensorID(),16);
+        Serial.print("        ID of 0xFF probably means a bad address, a BMP 180 or BMP 085\n");
+        Serial.print("   ID of 0x56-0x58 represents a BMP 280,\n");
+        Serial.print("        ID of 0x60 represents a BME 280.\n");
+        Serial.print("        ID of 0x61 represents a BME 680.\n");
+
+        screen.clear();
+        screen.drawString(0, 0, "ERROR: BME280 SENSOR MISSING?");
+        screen.display();
+
+        while (1) { delay(10); }
+    }
 
     currentMillis = millis();
-    lastMillis_dht = currentMillis;
+    lastMillis_bme = currentMillis;
     lastMillis_display = currentMillis;
 
 }
 
 void logTemp(){
-    float temp = dht.readTemperature(true);
-    currentTemperature = temp;
-    Serial.println(temp);
+    float temp_c = bme.readTemperature();
+    float temp_f = 1.8*temp_c + 32;
+    currentTemperature = temp_f;
+    Serial.println(temp_f);
 }
 
 
 void updateScreen(){
     screen.clear();
     
+    // blinking dude
     // static bool displayState = false;
     // if(displayState){
     //     screen.setFont(ArialMT_Plain_10);
@@ -123,10 +148,11 @@ void loop() {
         lastMillis_display = currentMillis;
     }
 
-    if(currentMillis - lastMillis_dht >= 5000){
+    if(currentMillis - lastMillis_bme >= 5000){
         logTemp();
-        lastMillis_dht = currentMillis;
+        lastMillis_bme = currentMillis;
     }
 
-    
+    // TODO: pwm fade/pulse the LED? using espressif ledc code?
+    // https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/ledc.html
 }
