@@ -14,7 +14,7 @@ https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32
 
 ledc control | https://espressif-docs.readthedocs-hosted.com/projects/arduino-esp32/en/latest/api/ledc.html
 
-
+https://www.reddit.com/r/esp32/comments/1bnfwhh/realtime_data_logging_and_data_history/
 
 relevant arduino folder paths?
 ~\Documents\Arduino\libraries\

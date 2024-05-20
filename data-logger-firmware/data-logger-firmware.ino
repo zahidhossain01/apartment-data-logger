@@ -1,5 +1,6 @@
 #include "Arduino.h"
 #include "WiFi.h"
+#include <HTTPClient.h>
 #include "time.h"
 #include <Adafruit_BME280.h>
 #include <HT_SSD1306Wire.h>
@@ -102,6 +103,17 @@ void logTemp(){
     float temp_f = 1.8*temp_c + 32;
     currentTemperature = temp_f;
     Serial.println(temp_f);
+
+    WiFiClient client;
+    HTTPClient http;
+    String url = "http://10.0.0.172:8080/logdata";
+    http.begin(client, url);
+    http.addHeader("Content-Type", "text/plain");
+    char buf[20];
+    snprintf(buf, sizeof(buf), "%.2f", temp_f);
+    int responseCode = http.POST(buf);
+    Serial.println(buf);
+
 }
 
 
@@ -126,7 +138,7 @@ void updateScreen(){
 
     getLocalTime(&timeinfo);
     strftime(timestamp, 50, "%F %H:%M:%S GMT%z", &timeinfo);
-    Serial.println(timestamp);
+    // Serial.println(timestamp);
 
     strftime(time_display_buf, 50, "%I:%M:%S %p", &timeinfo);
     screen.setFont(ArialMT_Plain_16);
